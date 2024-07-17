@@ -7,7 +7,7 @@ module [
     Unique,
     Search,
     empty,
-    schemaMigration,
+    migration,
     dataMigration,
     table,
     index,
@@ -16,7 +16,7 @@ module [
     foreignKey,
 ]
 
-import Task exposing [Task]
+import pf.Task exposing [Task]
 
 Migration := { fromHash : List U8, toHash : List U8, run : Task {} [] }
 
@@ -48,7 +48,7 @@ Search := {}
 
 empty : Schema {}
 
-schemaMigration : Schema old, (Key, old -> new) -> Schema new
+migration : Schema old, (Key, old -> new) -> Schema new
 
 dataMigration : Schema s, (s -> Task {} []) -> Schema s
 

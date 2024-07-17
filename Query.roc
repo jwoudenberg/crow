@@ -4,6 +4,7 @@ module [
     # Querying
     getOne,
     getAll,
+    getCount,
     getUpTo,
     insert,
     transaction,
@@ -35,7 +36,7 @@ module [
 ]
 
 import Schema exposing [Schema, Table, Index, ForeignKey, Search]
-import Task exposing [Task]
+import pf.Task exposing [Task]
 
 Filter t i := {}
 
@@ -53,9 +54,11 @@ connect : Str, Schema s -> Task s [DbFileNotFound, SchemaMismatch]
 
 getOne : Table a -> Task a [NoResults, MoreThanOneResult]
 
-getAll : Table a -> Task (List a) []
+getAll : Table a -> Task (List a) *
 
-getUpTo : Int a, Table a -> Task (List a) []
+getCount : Table a -> Task (Int a) *
+
+getUpTo : Int a, Table a -> Task (List a) *
 
 insert : a -> Task {} [DuplicateKey, ForeignKeyMismatch]
 
