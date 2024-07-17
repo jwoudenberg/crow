@@ -58,9 +58,9 @@ getAll : Table a -> Task (List a) *
 
 getCount : Table a -> Task (Int a) *
 
-getUpTo : Int a, Table a -> Task (List a) *
+getUpTo : Table a, Int a -> Task (List a) *
 
-insert : a -> Task {} [DuplicateKey, ForeignKeyMismatch]
+insert : a, Table a -> Task {} [DuplicateKey, ForeignKeyMismatch]
 
 ## -- TRANSACTIONS --
 
