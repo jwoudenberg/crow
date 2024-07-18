@@ -1,18 +1,21 @@
 module [
-    Schema,
     Table,
-    Index,
-    ForeignKey,
-    Regular,
-    Unique,
-    Search,
+    table,
+
+    # Migrations
+    Schema,
     empty,
     migration,
     dataMigration,
-    table,
+
+    # Indexes
+    Index,
     index,
-    uniqueIndex,
-    searchIndex,
+    unique,
+    searchable,
+
+    # Foreign keys
+    ForeignKey,
     foreignKey,
 ]
 
@@ -28,10 +31,11 @@ Key := Connection
 
 Table a := { name : List U8 }
 
-Index t a i := {
+Index i a t := {
     table : List U8,
     index : List U8,
-    kind : [Regular, Unique, Search],
+    unique : Bool,
+    searchable : Bool,
     calculate : a -> i,
 }
 
@@ -42,10 +46,6 @@ ForeignKey a b := {
     targetIndex : List U8,
 }
 
-Regular := {}
-Unique := {}
-Search := {}
-
 empty : Schema {}
 
 migration : Schema old, (Key, old -> new) -> Schema new
@@ -54,10 +54,14 @@ dataMigration : Schema s, (s -> Task {} []) -> Schema s
 
 table : Key -> Table a
 
-index : Key, Table a, (a -> i) -> Index Regular a i
+index : Key, Table a, (a -> i) -> Index i a t
 
-uniqueIndex : Key, Table a, (a -> i) -> Index Unique a i
+unique : Index i a {}t -> Index i a { unique : {} }t
 
-searchIndex : Key, Table a, (a -> Str) -> Index Search a Str
+searchable : Index i a {}t -> Index i a { searchable : {} }t
 
-foreignKey : Key, Index _ a i, Index Unique b i -> ForeignKey a b
+foreignKey :
+    Key,
+    Index i a *,
+    Index i b { unique : {} }*
+    -> ForeignKey a b

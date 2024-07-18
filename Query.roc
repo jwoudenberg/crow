@@ -17,11 +17,17 @@ module [
     lessThan,
     greaterThan,
     in,
-    contains,
-    like,
-    endsWith,
+    includes,
     all,
     any,
+
+    # Text search
+    Pattern,
+    match,
+    contains,
+    endsWith,
+
+    # Sorting
     sort,
 
     # Joins
@@ -35,12 +41,8 @@ module [
     chain,
 ]
 
-import Schema exposing [Schema, Table, Index, ForeignKey, Search]
+import Schema exposing [Schema, Table, Index, ForeignKey]
 import pf.Task exposing [Task]
-
-Filter t i := {}
-
-Join a state := {}
 
 # -- SCHEMA DEFINITION --
 
@@ -67,33 +69,39 @@ insert : a, Table a -> Task {} [DuplicateKey, ForeignKeyMismatch]
 transaction : Task a err -> Task a err
 
 ## -- FILTERING --
+Filter i := {}
 
-where : Table a, Index t a i, Filter t i -> Table a
+where : Table a, Index i a *, Filter i -> Table a
 
-equals : i -> Filter t i
+equals : i -> Filter i
 
-lessThan : i -> Filter t i
+lessThan : i -> Filter i
 
-greaterThan : i -> Filter t i
+greaterThan : i -> Filter i
 
-in : List i -> Filter t i
+in : List i -> Filter i
 
-contains : i -> Filter t (List i)
+includes : i -> Filter (List i)
 
-like : Str -> Filter Search Str
+not : Filter i -> Filter i
 
-endsWith : Str -> Filter Search Str
+all : List (Filter i) -> Filter i
 
-not : Filter t i -> Filter t i
+any : List (Filter i) -> Filter i
 
-all : List (Filter t i) -> Filter t i
+## -- Text Search --
+Pattern i := {}
 
-any : List (Filter t i) -> Filter t i
+match : Table a, Index i a { searchable : {} }*, Pattern i -> Table a
+
+contains : Str -> Pattern Str
+
+endsWith : Str -> Pattern Str
 
 # -- SORTING --
 
 # In case of multiple sort calls, use later sort as tie-breaker for earlier.
-sort : Table a, Index _ a i, [Asc, Desc] -> Table a
+sort : Table a, Index i a *, [Asc, Desc] -> Table a
 
 # -- JOINS --
 #
@@ -111,6 +119,8 @@ sort : Table a, Index _ a i, [Asc, Desc] -> Table a
 #            ingredients: outer (reverse recipeIngredients),
 #        } |> getJoin!
 #
+
+Join a state := {}
 
 join : Join a (s -> t), Join a s -> Join a state
 

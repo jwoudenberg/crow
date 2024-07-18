@@ -12,7 +12,7 @@ main =
     db = Query.connect! "./my-database.radt" latest
     amount =
         db.people
-            |> Query.where db.peopleNames (Query.endsWith "Woudenberg")
+            |> Query.match db.peopleNames (Query.endsWith "Woudenberg")
             |> Query.getCount!
     Stdout.line! "There's $(Num.toStr amount) family in the database!"
 
@@ -34,5 +34,5 @@ old1 = Schema.migration Schema.empty \key, {} ->
 
     {
         people,
-        peopleNames: Schema.searchIndex key people .name,
+        peopleNames: Schema.index key people .name |> Schema.searchable,
     }
