@@ -54,7 +54,7 @@ dataMigration : Schema s, (s -> Task {} []) -> Schema s
 
 table : Key -> Table a
 
-index : Key, Table a, (a -> i) -> Index i a t
+index : Key, Table a, (a -> i) -> Index i a {}
 
 unique : Index i a {}t -> Index i a { unique : {} }t
 
