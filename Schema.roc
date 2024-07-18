@@ -13,9 +13,6 @@ module [
     index,
     unique,
     searchable,
-
-    # Foreign keys
-    ForeignKey,
     foreignKey,
 ]
 
@@ -39,13 +36,6 @@ Index i a t := {
     calculate : a -> i,
 }
 
-ForeignKey a b := {
-    sourceTable : List U8,
-    sourceIndex : List U8,
-    targetTable : List U8,
-    targetIndex : List U8,
-}
-
 empty : Schema {}
 
 migration : Schema old, (Key, old -> new) -> Schema new
@@ -60,8 +50,4 @@ unique : Index i a {}t -> Index i a { unique : {} }t
 
 searchable : Index i a {}t -> Index i a { searchable : {} }t
 
-foreignKey :
-    Key,
-    Index i a *,
-    Index i b { unique : {} }*
-    -> ForeignKey a b
+foreignKey : Index i a {}t, Index i b { unique : {} }* -> Index i a { foreignKey : b }t

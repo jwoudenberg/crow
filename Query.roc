@@ -29,19 +29,9 @@ module [
 
     # Sorting
     sort,
-
-    # Joins
-    Join,
-    join,
-    getJoin,
-    source,
-    inner,
-    outer,
-    reverse,
-    chain,
 ]
 
-import Schema exposing [Schema, Table, Index, ForeignKey]
+import Schema exposing [Schema, Table, Index]
 import pf.Task exposing [Task]
 
 # -- SCHEMA DEFINITION --
@@ -102,36 +92,3 @@ endsWith : Str -> Pattern Str
 
 # In case of multiple sort calls, use later sort as tie-breaker for earlier.
 sort : Table a, Index i a *, [Asc, Desc] -> Table a
-
-# -- JOINS --
-#
-#    recipes : Table Recipe
-#    authors : Table Author
-#    ingredients : Table Ingredient
-#
-#    recipeIngredients : ForeignKey Ingredient Recipe
-#    recipeAuthor : ForeignKey Recipe Author
-#
-#    { recipes, authors, ingredients } =
-#        { join <-
-#            recipes: source recipes
-#            authors: inner recipeAuthor,
-#            ingredients: outer (reverse recipeIngredients),
-#        } |> getJoin!
-#
-
-Join a state := {}
-
-join : Join a (s -> t), Join a s -> Join a state
-
-source : Table a -> Join a state
-
-inner : ForeignKey a b -> Join a state
-
-outer : ForeignKey a b -> Join a state
-
-getJoin : Join a state -> Task state []
-
-reverse : ForeignKey a b -> ForeignKey b a
-
-chain : ForeignKey a b, ForeignKey b c -> ForeignKey a c
