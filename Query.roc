@@ -48,7 +48,7 @@ getCount : Table a indexes -> Task (Int a) *
 
 getUpTo : Table a indexes, Int a -> Task (List a) *
 
-insert : a, Table a indexes -> Task {} [DuplicateKey, ForeignKeyMismatch]
+insert : Table a indexes, a -> Task {} [DuplicateKey, ForeignKeyMismatch]
 
 ## -- TRANSACTIONS --
 
