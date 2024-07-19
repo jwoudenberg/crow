@@ -8,10 +8,9 @@ import pf.Stdout
 
 # Problems to fix:
 #
-# - [ ] How to insert connection into schema?
-# - [ ] How to prevent index being used to create fresh table types?
 # - [ ] How to create a table with 1 index?
 # - [ ] Joins?
+# - [ ] Update tables?
 
 main =
     # When connecting to the database crow checks the version of the database
@@ -38,22 +37,27 @@ main =
 # Migrations form a chain, each one taking the schema created by the previous
 # migration and returning an updated schema. By convention we call the most
 # recent migration 'latest'.
-latest = Schema.migration migration1 \{ langs } ->
+latest = Schema.migration migration1 \key, { langs } ->
     people : Schema.Table { id : U64, name : Str, favoriteLang : U64 } _
     people =
-        { Schema.table <-
-            id: Schema.index .id |> Schema.unique,
-            favoriteLang: Schema.index .favoriteLang |> Schema.references langs .id,
-        }
+        Schema.table
+            key
+            { Schema.indexes <-
+                id: Schema.index .id |> Schema.unique,
+                favoriteLang: Schema.index .favoriteLang |> Schema.references langs .id,
+            }
     { langs, people }
 
 # Crow diffs each version of the schema against the previous, to find out what
 # modifications to make to the database for a particular migration.
-migration1 = Schema.migration Schema.empty \{} ->
+migration1 = Schema.migration Schema.empty \key, {} ->
     langs : Schema.Table { id : U64, name : Str, tags : List Str } _
     langs =
-        { Schema.table <-
-            id: Schema.index .id,
-            name: Schema.index .name,
-        }
+        Schema.table
+            key
+            { Schema.indexes <-
+                id: Schema.index .id,
+                name: Schema.index .name,
+            }
+
     { langs }

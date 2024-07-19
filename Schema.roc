@@ -1,14 +1,17 @@
 module [
     Table,
-    table,
 
     # Migrations
     Schema,
+    Key,
     empty,
     migration,
     dataMigration,
 
-    # Indexes
+    # Table creation
+    Columns,
+    table,
+    indexes,
     index,
     unique,
     references,
@@ -46,18 +49,24 @@ Column a := {
 
 empty : Schema {}
 
-migration : Schema old, (old -> new) -> Schema new
+Key := Connection
+
+migration : Schema old, (Key, old -> new) -> Schema new
 
 dataMigration : Schema s, (s -> Task {} []) -> Schema s
 
-table : Table a k, Table a l, (k, l -> m) -> Table a m
+table : Key, Indexes a indexes -> Table a indexes
 
-index : (a -> i) -> Table a i
+Indexes a indexes := Table a indexes
 
-unique : Table a i -> Table a i
+indexes : Indexes a k, Indexes a l, (k, l -> m) -> Indexes a m
+
+index : (a -> i) -> Indexes a i
+
+unique : Indexes a i -> Indexes a i
 
 references :
-    Table a i,
+    Indexes a i,
     Table b indexes,
     (indexes -> i)
-    -> Table a b
+    -> Indexes a b
