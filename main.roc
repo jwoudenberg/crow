@@ -8,10 +8,9 @@ import pf.Stdout
 
 # Problems to fix:
 #
-# - [ ] Defining mkTable is not nice
+# - [ ] How to insert connection into schema?
+# - [ ] How to prevent index being used to create fresh table types?
 # - [ ] How to create a table with 1 index?
-# - [ ] Index type on where/match is icky
-# - [ ] Index type on where/match is icky
 # - [ ] Joins?
 
 main =
@@ -38,7 +37,7 @@ latest = Schema.migration migration2 \{ langs } ->
     people =
         { Schema.table <-
             id: Schema.index .id |> Schema.unique,
-            favoriteLang: Schema.index .favoriteLang |> Schema.foreignKey langs .id,
+            favoriteLang: Schema.index .favoriteLang |> Schema.references langs .id,
         }
     { langs, people }
 
@@ -59,7 +58,7 @@ migration1 = Schema.migration Schema.empty \{} ->
     langs : Schema.Table { id : U64, name : Str, tags : List Str } _
     langs =
         { Schema.table <-
-            id: Schema.index .id |> Schema.unique,
-            name: Schema.index .name |> Schema.searchable,
+            id: Schema.index .id,
+            name: Schema.index .name,
         }
     { langs }

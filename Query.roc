@@ -20,10 +20,6 @@ module [
     includes,
     all,
     any,
-
-    # Text search
-    Pattern,
-    match,
     contains,
     endsWith,
 
@@ -31,7 +27,7 @@ module [
     sort,
 ]
 
-import Schema exposing [Schema, Table, Index]
+import Schema exposing [Schema, Table]
 import pf.Task exposing [Task]
 
 # -- SCHEMA DEFINITION --
@@ -61,7 +57,7 @@ transaction : Task a err -> Task a err
 ## -- FILTERING --
 Filter i := {}
 
-where : Table a indexes, (indexes -> Index i *), Filter i -> Table a indexes
+where : Table a indexes, (indexes -> i), Filter i -> Table a indexes
 
 equals : i -> Filter i
 
@@ -79,14 +75,9 @@ all : List (Filter i) -> Filter i
 
 any : List (Filter i) -> Filter i
 
-## -- Text Search --
-Pattern i := {}
+contains : Str -> Filter Str
 
-match : Table a indexes, (indexes -> Index i { searchable : {} }*), Pattern i -> Table a indexes
-
-contains : Str -> Pattern Str
-
-endsWith : Str -> Pattern Str
+endsWith : Str -> Filter Str
 
 # -- SORTING --
 

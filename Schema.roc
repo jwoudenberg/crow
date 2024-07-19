@@ -9,11 +9,9 @@ module [
     dataMigration,
 
     # Indexes
-    Index,
     index,
     unique,
-    searchable,
-    foreignKey,
+    references,
 ]
 
 import pf.Task exposing [Task]
@@ -54,16 +52,12 @@ dataMigration : Schema s, (s -> Task {} []) -> Schema s
 
 table : Table a k, Table a l, (k, l -> m) -> Table a m
 
-Index i t := {}
+index : (a -> i) -> Table a i
 
-index : (a -> i) -> Table a (Index i {})
+unique : Table a i -> Table a i
 
-unique : Table a (Index i {}t) -> Table a (Index i { unique : {} }t)
-
-searchable : Table a (Index i {}t) -> Table a (Index i { searchable : {} }t)
-
-foreignKey :
-    Table a (Index i {}t),
+references :
+    Table a i,
     Table b indexes,
-    (indexes -> Index i { unique : {} }*)
-    -> Table a (Index i { foreignKey : b }t)
+    (indexes -> i)
+    -> Table a b
