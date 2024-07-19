@@ -56,8 +56,15 @@ main =
 # Migrations form a chain, each one taking the schema created by the previous
 # migration and returning an updated schema. By convention we call the most
 # recent migration 'latest'.
+latest : Schema.Schema {
+        langs : Schema.Table
+            { id : U64, name : Str, tags : List Str }
+            { id : Schema.Index U64, name : Schema.Index Str },
+        people : Schema.Table
+            { id : U64, name : Str, favoriteLang : U64 }
+            { id : Schema.Index U64, favoriteLang : _ },
+    }
 latest = Schema.migration migration1 \key, { langs } ->
-    people : Schema.Table { id : U64, name : Str, favoriteLang : U64 } _
     people =
         Schema.table
             key
@@ -69,8 +76,12 @@ latest = Schema.migration migration1 \key, { langs } ->
 
 # Crow diffs each version of the schema against the previous, to find out what
 # modifications to make to the database for a particular migration.
+migration1 : Schema.Schema {
+        langs : Schema.Table
+            { id : U64, name : Str, tags : List Str }
+            { id : Schema.Index U64, name : Schema.Index Str },
+    }
 migration1 = Schema.migration Schema.empty \key, {} ->
-    langs : Schema.Table { id : U64, name : Str, tags : List Str } _
     langs =
         Schema.table
             key
