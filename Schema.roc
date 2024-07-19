@@ -12,6 +12,7 @@ module [
     Indexes,
     Index,
     table,
+    mapTable,
     indexes,
     index,
     unique,
@@ -57,6 +58,9 @@ migration : Schema old, (Key, old -> new) -> Schema new
 dataMigration : Schema s, (s -> Task {} []) -> Schema s
 
 table : Key, Indexes a indexes -> Table a indexes
+
+# Create a new data from an old one
+mapTable : Key, Table a *, (a -> b), Indexes a indexes -> Table b indexes
 
 Indexes a indexes := Table a indexes
 

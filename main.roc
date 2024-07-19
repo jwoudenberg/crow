@@ -5,11 +5,6 @@ import Query
 
 import pf.Task exposing [Task]
 
-# Problems to fix:
-#
-# - [ ] How to create a table with 1 index?
-# - [ ] Update tables?
-
 main =
     # When connecting to the database crow checks the version of the database
     # schema, and if necessary runs migrations to bring it to the latest.
