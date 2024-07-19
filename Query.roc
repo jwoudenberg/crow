@@ -44,15 +44,15 @@ connect : Str, Schema s -> Task s [DbFileNotFound, SchemaMismatch]
 
 ## -- QUERYING --
 
-getOne : Table a -> Task a [NoResults, MoreThanOneResult]
+getOne : Table a indexes -> Task a [NoResults, MoreThanOneResult]
 
-getAll : Table a -> Task (List a) *
+getAll : Table a indexes -> Task (List a) *
 
-getCount : Table a -> Task (Int a) *
+getCount : Table a indexes -> Task (Int a) *
 
-getUpTo : Table a, Int a -> Task (List a) *
+getUpTo : Table a indexes, Int a -> Task (List a) *
 
-insert : a, Table a -> Task {} [DuplicateKey, ForeignKeyMismatch]
+insert : a, Table a indexes -> Task {} [DuplicateKey, ForeignKeyMismatch]
 
 ## -- TRANSACTIONS --
 
@@ -61,7 +61,7 @@ transaction : Task a err -> Task a err
 ## -- FILTERING --
 Filter i := {}
 
-where : Table a, Index i a *, Filter i -> Table a
+where : Table a indexes, (indexes -> Index i *), Filter i -> Table a indexes
 
 equals : i -> Filter i
 
@@ -82,7 +82,7 @@ any : List (Filter i) -> Filter i
 ## -- Text Search --
 Pattern i := {}
 
-match : Table a, Index i a { searchable : {} }*, Pattern i -> Table a
+match : Table a indexes, (indexes -> Index i { searchable : {} }*), Pattern i -> Table a indexes
 
 contains : Str -> Pattern Str
 
@@ -91,4 +91,4 @@ endsWith : Str -> Pattern Str
 # -- SORTING --
 
 # In case of multiple sort calls, use later sort as tie-breaker for earlier.
-sort : Table a, Index i a *, [Asc, Desc] -> Table a
+sort : Table a indexees, (indexes -> i), [Asc, Desc] -> Table a indexes

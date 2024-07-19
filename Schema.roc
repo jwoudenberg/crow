@@ -24,30 +24,46 @@ Schema s := { migrations : List Migration, schema : Connection -> s }
 
 Connection := {}
 
-Key := Connection
+Query a := {}
 
-Table a := { name : List U8 }
+Table a indexes := {
+    name : Str,
+    columns : List (Column a),
+    # To make a query we need the schema and the connection. By storing the
+    # connection inside the schema (in every table), the user won't need to
+    # pass around two things.
+    connection : Connection,
+    # Tables can be passed through chains to create queries, so we need to
+    # store the query-in-wording here too.
+    query : Query a,
+}
 
-Index i a t := {
-    table : List U8,
-    index : List U8,
+Column a := {
+    name : Str,
+    encode : a -> List U8,
     unique : Bool,
     searchable : Bool,
-    calculate : a -> i,
+    foreignKey : [Nope, To { table : Str, column : Str }],
 }
 
 empty : Schema {}
 
-migration : Schema old, (Key, old -> new) -> Schema new
+migration : Schema old, (old -> new) -> Schema new
 
 dataMigration : Schema s, (s -> Task {} []) -> Schema s
 
-table : Key -> Table a
+table : Table a k, Table a l, (k, l -> m) -> Table a m
 
-index : Key, Table a, (a -> i) -> Index i a {}
+Index i t := {}
 
-unique : Index i a {}t -> Index i a { unique : {} }t
+index : (a -> i) -> Table a (Index i {})
 
-searchable : Index i a {}t -> Index i a { searchable : {} }t
+unique : Table a (Index i {}t) -> Table a (Index i { unique : {} }t)
 
-foreignKey : Index i a {}t, Index i b { unique : {} }* -> Index i a { foreignKey : b }t
+searchable : Table a (Index i {}t) -> Table a (Index i { searchable : {} }t)
+
+foreignKey :
+    Table a (Index i {}t),
+    Table b indexes,
+    (indexes -> Index i { unique : {} }*)
+    -> Table a (Index i { foreignKey : b }t)
