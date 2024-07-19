@@ -4,23 +4,30 @@ import Schema
 import Query
 
 import pf.Task exposing [Task]
-import pf.Stdout
 
 # Problems to fix:
 #
 # - [ ] How to create a table with 1 index?
-# - [ ] Joins?
 # - [ ] Update tables?
 
 main =
     # When connecting to the database crow checks the version of the database
     # schema, and if necessary runs migrations to bring it to the latest.
     db = Query.connect! "./my-database.crow" latest
-    Query.insert! db.langs {
-        id: 1,
-        name: "Roc",
-        tags: ["Fast", "Friendly", "Functional"],
-    }
+    Query.insert! db.langs [
+        {
+            id: 1,
+            name: "Roc",
+            tags: ["Fast", "Friendly", "Functional"],
+        },
+    ]
+    Query.insert! db.people [
+        {
+            id: 8,
+            name: "Jasper",
+            favoriteLang: 1,
+        },
+    ]
 
     # We can only query indexes. Any other type of filtering we'll have to do
     # on the data we get back from the database.
@@ -28,9 +35,26 @@ main =
         db.langs
             |> Query.where .name (Query.equals "Roc")
             |> Query.getOne!
+    expect roc.tags == ["Fast", "Friendly", "Functional"]
 
-    description = Str.joinWith roc.tags ", "
-    Stdout.line! "Roc is all these things: ${description}"
+    # We can also do simple (inner) joins.
+    fanCount =
+        db.people
+            |> Query.where (\s -> s.favoriteLang.name) (Query.equals "Roc")
+            |> Query.getCount!
+    expect fanCount == 1
+
+    # And we support sub-queries.
+    favorites =
+        db.langs
+            |> Query.where
+                .id
+                (Query.inResults db.people (\s -> s.favoriteLang.id))
+            |> Query.getAll!
+
+    expect List.map favorites .name == ["Roc"]
+
+    Task.ok {}
 
 # -- schema migrations --
 
@@ -44,7 +68,7 @@ latest = Schema.migration migration1 \key, { langs } ->
             key
             { Schema.indexes <-
                 id: Schema.index .id |> Schema.unique,
-                favoriteLang: Schema.index .favoriteLang |> Schema.references langs .id,
+                favoriteLang: Schema.index .favoriteLang |> Schema.reference langs .id,
             }
     { langs, people }
 

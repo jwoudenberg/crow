@@ -6,7 +6,10 @@ module [
     getAll,
     getCount,
     getUpTo,
+
+    # Mutation
     insert,
+    delete,
     transaction,
 
     # Filter
@@ -17,17 +20,19 @@ module [
     lessThan,
     greaterThan,
     in,
+    inResults,
     includes,
     all,
     any,
     contains,
+    startsWith,
     endsWith,
 
     # Sorting
     sort,
 ]
 
-import Schema exposing [Schema, Table]
+import Schema exposing [Schema, Table, Index]
 import pf.Task exposing [Task]
 
 # -- SCHEMA DEFINITION --
@@ -40,24 +45,30 @@ connect : Str, Schema s -> Task s [DbFileNotFound, SchemaMismatch]
 
 ## -- QUERYING --
 
-getOne : Table a indexes -> Task a [NoResults, MoreThanOneResult]
+getOne : Table a * -> Task a [IOError, NoResults, MoreThanOneResult]
 
-getAll : Table a indexes -> Task (List a) *
+getAll : Table a * -> Task (List a) [IOError]
 
-getCount : Table a indexes -> Task (Int a) *
+getCount : Table a * -> Task (Int *) [IOError]
 
-getUpTo : Table a indexes, Int a -> Task (List a) *
+getUpTo : Table a *, Int a -> Task (List a) [IOError]
 
-insert : Table a indexes, a -> Task {} [DuplicateKey, ForeignKeyMismatch]
+## -- MUTATION --
 
-## -- TRANSACTIONS --
+insert : Table a *, List a -> Task {} [IOError, DuplicateKey, ForeignKeyMismatch]
+
+delete : Table a * -> Task a err
 
 transaction : Task a err -> Task a err
 
 ## -- FILTERING --
 Filter i := {}
 
-where : Table a indexes, (indexes -> i), Filter i -> Table a indexes
+where :
+    Table a indexes,
+    (indexes -> Index i),
+    Filter i
+    -> Table a indexes
 
 equals : i -> Filter i
 
@@ -66,6 +77,8 @@ lessThan : i -> Filter i
 greaterThan : i -> Filter i
 
 in : List i -> Filter i
+
+inResults : Table a indexes, (indexes -> Index i) -> Filter i
 
 includes : i -> Filter (List i)
 
@@ -77,9 +90,11 @@ any : List (Filter i) -> Filter i
 
 contains : Str -> Filter Str
 
+startsWith : Str -> Filter Str
+
 endsWith : Str -> Filter Str
 
 # -- SORTING --
 
 # In case of multiple sort calls, use later sort as tie-breaker for earlier.
-sort : Table a indexees, (indexes -> i), [Asc, Desc] -> Table a indexes
+sort : Table a indexees, (indexes -> Index i), [Asc, Desc] -> Table a indexes

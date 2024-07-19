@@ -9,12 +9,13 @@ module [
     dataMigration,
 
     # Table creation
-    Columns,
+    Indexes,
+    Index,
     table,
     indexes,
     index,
     unique,
-    references,
+    reference,
 ]
 
 import pf.Task exposing [Task]
@@ -59,14 +60,16 @@ table : Key, Indexes a indexes -> Table a indexes
 
 Indexes a indexes := Table a indexes
 
+Index a := {}
+
 indexes : Indexes a k, Indexes a l, (k, l -> m) -> Indexes a m
 
-index : (a -> i) -> Indexes a i
+index : (a -> i) -> Indexes a (Index i)
 
-unique : Indexes a i -> Indexes a i
+unique : Indexes a (Index i) -> Indexes a (Index i)
 
-references :
-    Indexes a i,
+reference :
+    Indexes a (Index i),
     Table b indexes,
-    (indexes -> i)
-    -> Indexes a b
+    (indexes -> Index i)
+    -> Indexes a indexes
